@@ -1,5 +1,5 @@
-# DEVOPS-utilities
-[DEVOPS] Utilities
+# VPS KICKSTART
+[DEVOPS]
 
 ## Initialise vps:
 
