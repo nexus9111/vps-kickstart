@@ -65,7 +65,7 @@ sudo snap restart docker
 echo "-- Installing NoHang"
 sudo add-apt-repository ppa:oibaf/test
 sudo apt update
-sudo apt install nohang
+sudo apt -y install nohang
 sudo systemctl enable --now nohang-desktop.service
 
 echo "-- Installing git"
