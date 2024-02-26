@@ -115,7 +115,7 @@ rm ./lsd-musl_*
 
 echo "-- Add docker aliases"
 echo "alias dps='docker ps --format \"table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\"'" >> ~/.zshrc
-echo "alias dpsp='docker ps --format "{{.Ports}} - {{.Names}} ({{.ID}})" | grep 0.0.0.0'" >> ~/.bashrc
+echo "alias dpsp='docker ps --format "{{.Ports}} - {{.Names}} ({{.ID}})" | grep 0.0.0.0'" >> ~/.zshrc
 echo "alias dcd='docker-compose down'" >> ~/.zshrc
 echo "alias dcu='docker-compose up -d'" >> ~/.zshrc
 
