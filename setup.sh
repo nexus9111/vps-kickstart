@@ -75,7 +75,7 @@ sudo apt-get -y install ufw
 sudo ufw allow 4222/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-sudo ufw enable
+sudo ufw --force enable
 
 echo "-- Installing usefull tools"
 sudo apt-get -y install htop
