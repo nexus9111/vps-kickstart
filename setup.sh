@@ -82,8 +82,8 @@ chmod +x ~/.docker/cli-plugins/docker-compose
 # ---------------------------------------------------------------------------- #
 
 echo "${G}-- Installing NoHang${NO}"
-sudo add-apt-repository ppa:oibaf/test
-sudo apt update
+sudo add-apt-repository ppa:oibaf/test -y
+sudo apt update -y
 sudo apt -y install nohang
 sudo systemctl enable --now nohang-desktop.service
 
