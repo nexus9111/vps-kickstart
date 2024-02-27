@@ -4,10 +4,16 @@
 # Contributors: 
 # Usage ./script.sh -s {yes;no} -n {yes;no}
 
+R='\033[0;31m'
+G='\033[0;32m'
+Y='\033[1;32m'
+B='\033[0;34m' 
+NO='\033[0m'
+
 while getopts ":s:n:" opt; do
   case $opt in
-    s) server="$OPTARG"
-    ;;
+    # s) server="$OPTARG"
+    # ;;
     n) nginx="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
@@ -22,38 +28,42 @@ while getopts ":s:n:" opt; do
   esac
 done
 
-echo "-- Starting server preparation"
+# ---------------------------------------------------------------------------- #
+#                                    SCRIPT                                    #
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Starting server preparation${NO}"
 sudo apt update
 sudo apt-get -y install unzip whois
+
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- UPDATE HISTORY DATE FORMAT${NO}"
 echo 'HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
 source ~/.bashrc
 
-echo "-- Updating root password"
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Updating root password${NO}"
 password=$(whiptail --passwordbox "Please enter your new root password" 8 78 --title "Root Password" 3>&1 1>&2 2>&3)
 echo "root:$password" | sudo chpasswd
 
-echo "-- Creating new user"
-username=$(whiptail --inputbox "Please enter new non root user username" 8 78 --title "Username" 3>&1 1>&2 2>&3)
-password=$(whiptail --passwordbox "Please enter new non root user password" 8 78 --title "User Password" 3>&1 1>&2 2>&3)
-sudo useradd -m -p $(openssl passwd -1 $password) -s /bin/bash $username
-sudo usermod -aG sudo $username
+# ---------------------------------------------------------------------------- #
 
-echo "-- Updating SSH Port"
+echo "${G}-- Updating SSH Port${NO}"
 sudo sed -i 's+#Port 22+Port 4222+g' /etc/ssh/sshd_config
 sudo service ssh restart
 
-echo "-- Adding SSH Key"
-sshkey=$(whiptail --inputbox "Please enter your SSH Public Key" 8 78 --title "SSH Key" 3>&1 1>&2 2>&3)
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Adding SSH Key${NO}"
+sshkey=$(whiptail --inputbox "Please enter your SSH Public Key (leave empty to skip)" 8 78 --title "SSH Key" 3>&1 1>&2 2>&3)
 mkdir ~/.ssh
 echo $sshkey >> ~/.ssh/authorized_keys
-# add ssh key to new user
-sudo mkdir /home/$username/.ssh
-sudo chown $username:$username /home/$username/.ssh
-sudo echo $sshkey >> /home/$username/.ssh/authorized_keys
-sudo chown $username:$username /home/$username/.ssh/authorized_keys
 
-# Docker
-echo "-- Installing Docker and Docker Compose"
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing Docker and Docker Compose${NO}"
 sudo apt-get -y install docker.io docker-compose
 sudo systemctl start docker
 sudo usermod -aG docker $USER
@@ -62,33 +72,77 @@ sudo service docker restart
 sudo /etc/init.d/docker restart
 sudo snap restart docker
 
-echo "-- Installing NoHang"
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing new Docker Compose command${NO}"
+mkdir -p ~/.docker/cli-plugins/
+curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
+
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing NoHang${NO}"
 sudo add-apt-repository ppa:oibaf/test
 sudo apt update
 sudo apt -y install nohang
 sudo systemctl enable --now nohang-desktop.service
 
-echo "-- Installing git"
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing git${NO}"
 sudo apt-get -y install git
 
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Setup firewall${NO}"
 sudo apt-get -y install ufw
 sudo ufw allow 4222/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 sudo ufw --force enable
 
-echo "-- Installing usefull tools"
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing usefull tools${NO}"
 sudo apt-get -y install htop
 sudo apt-get -y install net-tools
 sudo apt-get -y install tree
 sudo apt-get -y install curl
 sudo apt-get -y install wget
 sudo apt-get -y install vim
+sudo apt install python3 -y
+sudo apt install python3-pip -y
+sudo python3 -m pip install bpytop --upgrade
 
-if [[ "$server" == "yes" ]]; then
-    echo "-- Installing Fail2Ban for Production server"
-    sudo apt-get -y install fail2ban
-fi
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing lsd${NO}"
+wget https://github.com/lsd-rs/lsd/releases/download/0.23.1/lsd-musl_0.23.1_amd64.deb
+sudo dpkg -i lsd-musl_0.23.1_amd64.deb
+echo "alias ls='lsd'" >> ~/.zshrc
+rm ./lsd-musl_*
+
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Add docker aliases${NO}"
+echo "alias dps='docker ps --format \"table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\"'" >> ~/.zshrc
+echo "alias dpsp='docker ps --format \"{{.Ports}} - {{.Names}} ({{.ID}})\" | grep 0.0.0.0'" >> ~/.zshrc
+echo "alias dcd='docker-compose down'" >> ~/.zshrc
+echo "alias dcu='docker-compose up -d'" >> ~/.zshrc
+
+# ---------------------------------------------------------------------------- #
+
+echo "${G}-- Installing Fail2Ban for Production server${NO}"
+git clone https://github.com/fail2ban/fail2ban.git
+cd fail2ban
+sudo python3 setup.py install
+sudo cp files/debian-initd /etc/init.d/fail2ban
+sudo update-rc.d fail2ban defaults
+sudo service fail2ban start
+cd ..
+sudo rm -rf fail2ban
+
+# ---------------------------------------------------------------------------- #
 
 if [[ "$nginx" == "yes" ]]; then
     echo "-- Installing Nginx"
@@ -97,29 +151,10 @@ if [[ "$nginx" == "yes" ]]; then
            -v /srv/nginx/nginx_secrets:/etc/letsencrypt -v /srv/nginx/logs/:/logs/ \
            -v /srv/nginx/user_conf.d:/etc/nginx/user_conf.d:ro \
            --name nginx-certbot jonasal/nginx-certbot:latest
+    docker network create nginx-proxy
+    docker network connect nginx-proxy nginx-certbot
 fi
 
-echo "-- Installing Node Version Manager"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-echo "-- Installing OhMyZsh"
-sudo apt-get -y install zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="cloud"/g' ~/.zshrc
-
-echo "-- Installing lsd"
-wget https://github.com/lsd-rs/lsd/releases/download/0.23.1/lsd-musl_0.23.1_amd64.deb
-sudo dpkg -i lsd-musl_0.23.1_amd64.deb
-echo "alias ls='lsd'" >> ~/.zshrc
-rm ./lsd-musl_*
-
-echo "-- Add docker aliases"
-echo "alias dps='docker ps --format \"table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\"'" >> ~/.zshrc
-echo "alias dpsp='docker ps --format \"{{.Ports}} - {{.Names}} ({{.ID}})\" | grep 0.0.0.0'" >> ~/.zshrc
-echo "alias dcd='docker-compose down'" >> ~/.zshrc
-echo "alias dcu='docker-compose up -d'" >> ~/.zshrc
-
-
 # reboot the system
-echo "-- Rebooting the system"
+echo "${G}-- Rebooting the system ! See you soon ;-)${NO}"
 sudo reboot now
