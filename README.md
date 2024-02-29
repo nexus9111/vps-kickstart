@@ -15,8 +15,13 @@ $ chmod +x setup.sh
 # simple run
 $ ./setup.sh 
 
-# add nginx/certbot on the server
-$ ./setup.sh [...] -n yes
+# add new user
+$ ./setup.sh -u username
+
+# add you ssh key
+$ ./setup.sh -k public_key
+
+# you can combine options
 ```
 
 - Now you will be able to login on the server on port 4222
