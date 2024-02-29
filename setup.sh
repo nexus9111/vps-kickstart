@@ -50,7 +50,7 @@ echo -e "root:$password" | sudo chpasswd
 
 # ---------------------------------------------------------------------------- #
 
-if [[ "$newuser" != "" ]]; then
+if [[ "$newUser" != "" ]]; then
   echo -e "${G}-- Creating new user${NO}"
   newUserPassword=$(openssl rand -base64 12)
   sudo useradd -m -p $(openssl passwd -1 $newUserPassword) -s /bin/bash $newUser
@@ -70,7 +70,7 @@ if [[ "$sshkey" != "" ]]; then
     mkdir ~/.ssh
     echo $sshkey >> ~/.ssh/authorized_keys
 
-    if [[ "$newuser" != "" ]]; then
+    if [[ "$newUser" != "" ]]; then
       echo -e "${G}-- Adding SSH Key to new user${NO}"
       sudo mkdir /home/$newUser/.ssh
       sudo chown $newUser:$newUser /home/$newUser/.ssh
@@ -166,7 +166,7 @@ sudo rm -rf fail2ban
 echo -e "${G}-- Rebooting the system ! See you soon ;-)${NO}"
 echo -e "${Y}PLEASE NOTE: ${G}Your new root password is: ${R}$password${NO}"
 
-if [[ "$newuser" != "" ]]; then
+if [[ "$newUser" != "" ]]; then
   echo -e "${Y}PLEASE NOTE: ${G}Your new user is: ${R}$newUser${NO}"
   echo -e "${Y}PLEASE NOTE: ${G}Your new user password is: ${R}$newUserPassword${NO}"
 fi
