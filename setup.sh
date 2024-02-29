@@ -2,7 +2,7 @@
 
 # Author: Joss C
 # Contributors: 
-# Usage ./script.sh -s {yes;no} -n {yes;no}
+# Usage ./script.sh [-k <sshkey>] [-u <newUser>]
 
 R='\033[0;31m'
 G='\033[0;32m'
