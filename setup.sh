@@ -140,9 +140,7 @@ sudo apt-get -y install tree
 sudo apt-get -y install curl
 sudo apt-get -y install wget
 sudo apt-get -y install vim
-sudo apt install python3 -y
-sudo apt install python3-pip -y
-sudo python3 -m pip install bpytop --upgrade
+sudo apt -y install bpytop
 
 # ---------------------------------------------------------------------------- #
 
