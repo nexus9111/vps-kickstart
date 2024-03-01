@@ -91,14 +91,16 @@ echo -e "${G}-- Installing Docker and Docker Compose${NO}"
 sudo apt-get -y install docker.io docker-compose
 sudo systemctl start docker
 sudo usermod -aG docker $USER
+
+if [[ "$newUser" != "" ]]; then
+  sudo usermod -aG docker $newUser
+fi
+
 echo -e "-- Restarting Docker service"
 sudo service docker restart
 sudo /etc/init.d/docker restart
 sudo snap restart docker
 
-if [[ "$newUser" != "" ]]; then
-  sudo usermod -aG docker $newUser
-fi
 
 # ---------------------------------------------------------------------------- #
 
