@@ -61,7 +61,7 @@ fi
 
 echo -e "${G}-- Updating SSH Port${NO}"
 sudo sed -i 's+#Port 22+Port 4222+g' /etc/ssh/sshd_config
-sudo sed -i 's+#ListenStream=22+ListenStream=4222+g' /lib/systemd/system/ssh.socket
+sudo sed -i 's+ListenStream=22+ListenStream=4222+g' /lib/systemd/system/ssh.socket
 sudo service ssh restart
 
 # ---------------------------------------------------------------------------- #
