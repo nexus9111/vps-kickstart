@@ -147,16 +147,16 @@ sudo apt -y install bpytop
 echo -e "${G}-- Installing lsd${NO}"
 wget https://github.com/lsd-rs/lsd/releases/download/0.23.1/lsd-musl_0.23.1_amd64.deb
 sudo dpkg -i lsd-musl_0.23.1_amd64.deb
-echo -e "alias ls='lsd'" >> ~/.zshrc
+echo -e "alias ls='lsd'" >> ~/.bashrc
 rm ./lsd-musl_*
 
 # ---------------------------------------------------------------------------- #
 
 echo -e "${G}-- Add docker aliases${NO}"
-echo -e "alias dps='docker ps --format \"table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\"'" >> ~/.zshrc
-echo -e "alias dpsp='docker ps --format \"{{.Ports}} - {{.Names}} ({{.ID}})\" | grep 0.0.0.0'" >> ~/.zshrc
-echo -e "alias dcd='docker-compose down'" >> ~/.zshrc
-echo -e "alias dcu='docker-compose up -d'" >> ~/.zshrc
+echo -e "alias dps='docker ps --format \"table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\"'" >> ~/.bashrc
+echo -e "alias dpsp='docker ps --format \"{{.Ports}} - {{.Names}} ({{.ID}})\" | grep 0.0.0.0'" >> ~/.bashrc
+echo -e "alias dcd='docker-compose down'" >> ~/.bashrc
+echo -e "alias dcu='docker-compose up -d'" >> ~/.bashrc
 
 # ---------------------------------------------------------------------------- #
 
