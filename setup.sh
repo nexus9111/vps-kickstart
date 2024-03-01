@@ -96,6 +96,10 @@ sudo service docker restart
 sudo /etc/init.d/docker restart
 sudo snap restart docker
 
+if [[ "$newUser" != "" ]]; then
+  sudo usermod -aG docker $newUser
+fi
+
 # ---------------------------------------------------------------------------- #
 
 echo -e "${G}-- Installing new Docker Compose command${NO}"
